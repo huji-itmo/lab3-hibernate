@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import javax.persistence.EntityManager;
 import java.util.Scanner;
 
 @AllArgsConstructor
@@ -18,10 +19,11 @@ public class AddConversationCommand implements OverloadedCommand {
     public String execute(String args) throws CommandException {
         Conversation conversation = Conversation.createFromInput(new Scanner(System.in));
 
-        Session session =factory.openSession();
-        session.beginTransaction();
-        session.save(conversation);
 
+        Session session =factory.openSession();
+        EntityManager em = session.getEntityManagerFactory().createEntityManager();
+        session.beginTransaction();
+        em.merge(conversation);
         session.getTransaction().commit();
         session.close();
 

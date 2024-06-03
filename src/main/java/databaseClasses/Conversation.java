@@ -3,10 +3,17 @@ package databaseClasses;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -32,14 +39,25 @@ public class Conversation {
 
 
     @OneToMany(mappedBy = "id", targetEntity= Person.class, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Person> peopleInDialogue;
 
     @OneToMany(mappedBy = "id", targetEntity= Robot.class, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Robot> robotsInDialogue;
 
     public Conversation(int length_in_seconds, Mood mood) {
         this.length_in_seconds = length_in_seconds;
         this.mood = mood;
+    }
+
+    public static boolean existAny(SessionFactory factory) {
+        try (Session session = factory.openSession()) {
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<Conversation> query = builder.createQuery(Conversation.class);
+            query.select(query.from(Conversation.class));
+            return !(session.createQuery(query).getResultList().isEmpty());
+        }
     }
 
     public static Conversation createFromInput(Scanner scanner) {

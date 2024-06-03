@@ -24,8 +24,8 @@ CREATE TABLE PEOPLE(
     verbosity float NOT NULL,
     conversation_id bigint references CONVERSATIONS(id) NOT NULL
 
-    CONSTRAINT strength CHECK ( strength>=0 AND strength <= 10 ),
-    CONSTRAINT verbosity CHECK ( verbosity>=0 AND verbosity <= 10 )
+    CONSTRAINT strength CHECK ( strength between 0 and 10),
+    CONSTRAINT verbosity CHECK ( verbosity between 0 and 10)
 );
 
 CREATE TABLE ROBOTS(
@@ -51,25 +51,3 @@ CREATE TABLE EMOTIONS(
     CONSTRAINT despair CHECK ( despair between 0 AND 10 )
 
 );
-
--- INSERT INTO CONVERSATIONS( about, length, mood) VALUES
---    ('допрос', 'краткий', 'глубокий');
---
--- INSERT INTO ROBOTS(model, conversation_id) VALUES
---     ('r2d2', 1);
---
--- INSERT INTO ROBOT_FEATURES(description, robot_id) VALUES
---     ('краткость', 1),
---     ('точность', 1),
---     ('может привести в отчаяние', 1);
---
--- INSERT INTO PEOPLE(gender, name, conversation_id) VALUES
---     ('мужчина', 'Олвин', 1),
---     ('мужчина', 'ХИВЛА', 1);
---
--- INSERT INTO EMOTIONS(person_id, description, cause, intensity) VALUES
---     (1, 'отчаяние', 'диалог с роботом', 8),
---     (1, 'обессилен', 'диалог с роботом', 6);
---
--- INSERT INTO ACTIONS_IN_CONVERSATIONS(acting_person_id, action_description, conversation_id) VALUES
---     (2, 'вмешался в диалог', 1);

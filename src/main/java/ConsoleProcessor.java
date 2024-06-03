@@ -19,6 +19,8 @@ public class ConsoleProcessor {
                     processor.executeCommand(scanner.nextLine());
                 } catch (CommandException e) {
                     System.err.println(e.getMessage());
+                } catch(Throwable e) {
+                    System.err.print(e.getMessage());
                 }
             }
         } catch (NoSuchElementException e) {

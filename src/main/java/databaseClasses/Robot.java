@@ -34,6 +34,11 @@ public class Robot {
     private double damage;
 
     public static Robot createFromInput(Scanner scanner, SessionFactory factory) {
+        if (!Conversation.existAny(factory)) {
+            System.out.println("Can't create new robot because conversations table is empty!");
+            return null;
+        }
+
         return Robot.builder()
                 .model(enterModel(scanner))
                 .conversation(Person.chooseConversation(scanner,factory))
@@ -50,7 +55,6 @@ public class Robot {
         catch (NumberFormatException e) {
             System.err.println(e.getMessage());
             return enterDamage(scanner);
-
         }
     }
 
@@ -59,8 +63,8 @@ public class Robot {
         try {
             double in = Double.parseDouble(scanner.nextLine());
             if (in < 0 || in > 10) {
-                System.err.println("Brevity can't be negative!");
-                enterBrevity(scanner);
+                System.err.println("Brevity can't be negative or greater that zero!");
+                return enterBrevity(scanner);
             }
 
             return in;
@@ -79,7 +83,7 @@ public class Robot {
             String line = scanner.nextLine();
             if (line.isBlank()) {
                 System.err.println("Model can't be null!");
-                enterModel(scanner);
+                return enterModel(scanner);
             }
 
             return line;

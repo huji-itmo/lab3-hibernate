@@ -1,20 +1,25 @@
 import commands.AbstractCommandProcessor;
 import commands.CommandProcessor;
 import commands.databaseCommands.*;
+import databaseClasses.Conversation;
+import databaseClasses.Emotion;
+import databaseClasses.Person;
+import databaseClasses.Robot;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Scanner;
 
 public class Application {
+    static SessionFactory factory = null;
+
     public static void run(String[] args) {
         if (args.length != 1) {
             System.out.println("Pass .pgpass file path!");
             System.exit(0);
         }
-
-        SessionFactory factory = null;
 
         try {
 
@@ -37,18 +42,7 @@ public class Application {
 
         AbstractCommandProcessor commandProcessor = new CommandProcessor();
 
-        commandProcessor.getCommands().put("show_conversations", new ShowConversationsCommand(factory));
-        commandProcessor.getCommands().put("show_people", new ShowPeopleCommand(factory));
-        commandProcessor.getCommands().put("show_robots", new ShowRobotsCommand(factory));
-        commandProcessor.getCommands().put("show_emotions", new ShowEmotionsCommand(factory));
-
-        commandProcessor.getCommands().put("add_conversation", new AddConversationCommand(factory));
-        commandProcessor.getCommands().put("add_person", new AddPersonCommand(factory));
-        commandProcessor.getCommands().put("add_emotion", new AddEmotionCommand(factory));
-        commandProcessor.getCommands().put("add_robot", new AddRobotCommand(factory));
-
-        commandProcessor.getCommands().put("execute", new ExecCommand(factory));
-
+        CommandProcessorMapFill.fill(commandProcessor, factory);
         System.out.println("Start typing your requests!");
         new ConsoleProcessor(commandProcessor).startLoop();
     }

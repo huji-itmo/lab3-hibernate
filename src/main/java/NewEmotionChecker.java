@@ -4,6 +4,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.type.BasicType;
 
+import javax.persistence.criteria.CriteriaQuery;
+import java.util.EmptyStackException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -22,7 +24,7 @@ public class NewEmotionChecker {
                 int count = getCount(factory);
 
                 if (count > lastCount) {
-                    System.out.println("New emotion was added! Type \"show_emotions to see.\"");
+                    System.out.println("New emotion was added! Type \"show_emotions\" to see.");
                 }
 
                 lastCount = count;
@@ -31,12 +33,12 @@ public class NewEmotionChecker {
     }
 
     public static int getCount(SessionFactory factory) {
-        Session session = factory.openSession();
-        session.beginTransaction();
-        int count = session.createNativeQuery("select * from emotions", Emotion.class).list().size();
-        session.getTransaction().commit();
-        session.close();
+        try (Session session = factory.openSession()) {
+            CriteriaQuery<Emotion> query=  session.getCriteriaBuilder().createQuery(Emotion.class);
 
-        return count;
+            query.select(query.from(Emotion.class));
+
+            return session.createQuery(query).getResultList().size();
+        }
     }
 }

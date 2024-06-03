@@ -8,6 +8,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
 import java.util.Scanner;
 
@@ -38,8 +40,21 @@ public class Person {
     @OneToMany(mappedBy = "id", targetEntity= Emotion.class)
     private List<Emotion> emotions;
 
+    public static boolean existsAny(SessionFactory factory) {
+        try (Session session = factory.openSession()) {
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<Person> query = builder.createQuery(Person.class);
+            query.select(query.from(Person.class));
+            return !(session.createQuery(query).getResultList().isEmpty());
+        }
+    }
 
     public static Person createFromInput(Scanner scanner, SessionFactory factory) {
+        if (!Conversation.existAny(factory)) {
+            System.out.println("Can't create new person because conversations table is empty!");
+            return null;
+        }
+
         return Person.builder()
                 .name(enterName(scanner))
                 .gender(enterGender(scanner))
@@ -55,7 +70,7 @@ public class Person {
             String line = scanner.nextLine();
             if (line.isBlank()) {
                 System.err.println("Name can't be empty!");
-                enterName(scanner);
+                return enterName(scanner);
             }
 
             return line;
@@ -97,8 +112,8 @@ public class Person {
         try {
             double in = Double.parseDouble(scanner.nextLine());
             if (in < 0 || in > 10) {
-                System.err.println("Verbosity can't be negative!");
-                enterVerbosity(scanner);
+                System.err.println("Verbosity can't be negative or greater that zero!");
+                return enterVerbosity(scanner);
             }
 
             return in;
@@ -115,8 +130,8 @@ public class Person {
         try {
             double in = Double.parseDouble(scanner.nextLine());
             if (in < 0 || in > 10) {
-                System.err.println("Strength can't be negative!");
-                enterStrength(scanner);
+                System.err.println("Strength can't be negative or greater that zero!");
+                return enterStrength(scanner);
             }
 
             return in;
@@ -139,4 +154,6 @@ public class Person {
         }
         return enterGender(scanner);
     }
+
+
 }

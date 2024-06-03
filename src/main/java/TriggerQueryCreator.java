@@ -46,9 +46,4 @@ public class TriggerQueryCreator {
             return new String(inputStream.readAllBytes());
         }
     }
-
-    public static String getPropertyValue(Configuration configuration, String propertyName) {
-        return Optional.ofNullable(configuration.getProperty(propertyName))
-                .orElseThrow(() -> new IllegalArgumentException("Property not found: " + propertyName));
-    }
 }

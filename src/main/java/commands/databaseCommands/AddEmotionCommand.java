@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import javax.persistence.EntityManager;
 import java.util.Scanner;
 
 @AllArgsConstructor
@@ -19,8 +20,9 @@ public class AddEmotionCommand implements OverloadedCommand {
         Emotion emotion = Emotion.createFromInput(new Scanner(System.in), factory);
 
         Session session =factory.openSession();
+        EntityManager em = session.getEntityManagerFactory().createEntityManager();
         session.beginTransaction();
-        session.save(emotion);
+        em.merge(emotion);
 
         session.getTransaction().commit();
         session.close();

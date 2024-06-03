@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
 import java.util.Scanner;
 
@@ -36,6 +37,12 @@ public class Emotion {
     }
 
     public static Emotion createFromInput(Scanner scanner, SessionFactory factory) {
+        if (!Person.existsAny(factory)) {
+            System.out.println("Can't create new emotion because people table is empty!");
+
+            return null;
+        }
+
         return new Emotion(choosePerson(scanner, factory), enterJoy(scanner), enterFear(scanner), enterDespair(scanner));
     }
 
@@ -44,8 +51,8 @@ public class Emotion {
         try {
             double in = Double.parseDouble(scanner.nextLine());
             if (in < 0 || in > 10) {
-                System.err.println("Joy can't be negative!");
-                enterJoy(scanner);
+                System.err.println("Joy can't be negative or greater that zero!");
+                return enterJoy(scanner);
             }
 
             return in;
@@ -62,8 +69,8 @@ public class Emotion {
         try {
             double in = Double.parseDouble(scanner.nextLine());
             if (in < 0 || in > 10) {
-                System.err.println("Fear can't be negative!");
-                enterFear(scanner);
+                System.err.println("Fear can't be negative or greater that zero!");
+                return enterFear(scanner);
             }
 
             return in;
@@ -80,8 +87,8 @@ public class Emotion {
         try {
             double in = Double.parseDouble(scanner.nextLine());
             if (in < 0 || in > 10) {
-                System.err.println("Despair can't be negative!");
-                enterDespair(scanner);
+                System.err.println("Despair can't be negative or greater that zero!");
+                return enterDespair(scanner);
             }
 
             return in;
@@ -97,25 +104,24 @@ public class Emotion {
     private static Person choosePerson(Scanner scanner, SessionFactory factory) {
         System.out.println("Choose and enter id from following people");
 
-        Session session = factory.openSession();
+        try (Session session = factory.openSession()){
+            CriteriaQuery<Person> query = session.getCriteriaBuilder().createQuery(Person.class);
 
-        session.beginTransaction();
+            query.select(query.from(Person.class));
+            List<Person> list = session.createQuery(query).getResultList();
 
-        List<Person> list = session.createNativeQuery("select * from people;", Person.class).list();
-        session.getTransaction().commit();
-        session.close();
+            list.forEach(System.out::println);
+            try {
+                long id = Long.parseLong(scanner.nextLine());
 
-        list.forEach(System.out::println);
-        try {
-            long id = Long.parseLong(scanner.nextLine());
+                return list.stream().filter((person) -> person.getId() == id)
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("Choose number that listed!"));
 
-            return list.stream().filter((person) -> person.getId() == id)
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Choose number that listed!"));
-
-        } catch (IllegalArgumentException e){
-            System.err.println(e.getMessage());
-            return choosePerson(scanner, factory);
+            } catch (IllegalArgumentException e){
+                System.err.println(e.getMessage());
+                return choosePerson(scanner,factory);
+            }
         }
     }
 }
