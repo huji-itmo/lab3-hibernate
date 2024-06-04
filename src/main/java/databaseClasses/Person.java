@@ -1,9 +1,6 @@
 package databaseClasses;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -38,6 +35,7 @@ public class Person {
     private Conversation conversation;
 
     @OneToMany(mappedBy = "id", targetEntity= Emotion.class)
+    @ToString.Exclude
     private List<Emotion> emotions;
 
     public static boolean existsAny(SessionFactory factory) {

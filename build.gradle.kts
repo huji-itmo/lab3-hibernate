@@ -54,6 +54,8 @@ tasks.javadoc {
 
 tasks.create("deploy") {
 
+    dependsOn(":jar")
+
     doLast {
         val user = (System.getenv("DEPLOYUSER") ?: "ERROR")
         val userAndHost : String = user + "@" + (System.getenv ("DEPLOYHOST")  ?: "ERROR")

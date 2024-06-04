@@ -22,23 +22,27 @@ public class ShowClassCommand<T> implements OverloadedCommand {
 
     @Override
     public String execute(String args) throws CommandException {
-        try (Session session = factory.openSession()) {
-            session.beginTransaction();
 
+
+        try (Session session = factory.openSession()) {
             EntityManager em = session.getEntityManagerFactory().createEntityManager();
 
             CriteriaQuery<T> query = em.getCriteriaBuilder().createQuery(clazz);
 
             query.select(query.from(clazz));
 
-            List<T> list = session.createQuery(query).getResultList();
-            session.getTransaction().commit();
+            List<T> list = session.createQuery(query).getResultList().stream().filter(Objects::nonNull).toList();
+
+            String res = list.stream().map(Object::toString).map(str -> str + "\n").collect(Collectors.joining());
 
             if (list.isEmpty()) {
                 return clazz.getSimpleName() + " table is currently empty.";
             }
 
-            return list.stream().map(Objects::toString).map(str -> str + "\n").collect(Collectors.joining());
+            return res;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return e.getMessage();
         }
     }
 
@@ -49,8 +53,6 @@ public class ShowClassCommand<T> implements OverloadedCommand {
 
     @Override
     public CommandArgument[] getArguments() {
-        return new CommandArgument[] {
-                new CommandArgument(clazz.getSimpleName(), "", false)
-        };
+        return new CommandArgument[0];
     }
 }

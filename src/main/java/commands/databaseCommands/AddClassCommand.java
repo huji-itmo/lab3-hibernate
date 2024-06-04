@@ -28,7 +28,6 @@ public class AddClassCommand implements OverloadedCommand {
 
         try (Session session =factory.openSession()) {
 
-//            EntityManager em = session.getEntityManagerFactory().createEntityManager();
             session.beginTransaction();
             session.saveOrUpdate(obj);
             session.getTransaction().commit();

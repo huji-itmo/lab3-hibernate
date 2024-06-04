@@ -38,7 +38,7 @@ public class Emotion {
 
     public static Emotion createFromInput(Scanner scanner, SessionFactory factory) {
         if (!Person.existsAny(factory)) {
-            System.out.println("Can't create new emotion because people table is empty!");
+            System.err.println("Can't create new emotion because people table is empty!");
 
             return null;
         }
